@@ -10,10 +10,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 
 interface AdminProps {
-  onLogout: () => void;
+  onSwitchToPublic: () => void;
 }
 
-export default function Admin({ onLogout }: AdminProps) {
+export default function Admin({ onSwitchToPublic }: AdminProps) {
   const [activeTab, setActiveTab] = useState("live");
   const { liveTickets, pastTickets, isLoading } = useTickets();
   
@@ -193,19 +193,19 @@ export default function Admin({ onLogout }: AdminProps) {
                 <p className="text-sm text-muted-foreground">Ticket Management System</p>
               </div>
             </div>
-            <Badge className="bg-green-100 text-green-800 border-green-200" data-testid="badge-admin-mode">
-              <i className="fas fa-user-shield mr-2"></i>Admin Mode
+            <Badge className="bg-blue-100 text-blue-800 border-blue-200" data-testid="badge-admin-mode">
+              <i className="fas fa-headset mr-2"></i>Dashboard
             </Badge>
           </div>
         </div>
       </header>
 
-      {/* Admin Panel */}
+      {/* Support Panel */}
       <div className="flex h-[calc(100vh-4rem)]">
         <AdminSidebar
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          onLogout={onLogout}
+          onLogout={onSwitchToPublic}
           liveCount={liveTicketsTyped.length}
           pastCount={pastTicketsTyped.length}
         />

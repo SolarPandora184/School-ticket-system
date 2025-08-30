@@ -9,18 +9,18 @@ import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAdmin, disableAdminMode } = useAdmin();
+  const { isPublicMode, enablePublicMode } = useAdmin();
 
-  if (isAdmin) {
-    return <Admin onLogout={disableAdminMode} />;
+  if (isPublicMode) {
+    return (
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route component={NotFound} />
+      </Switch>
+    );
   }
 
-  return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route component={NotFound} />
-    </Switch>
-  );
+  return <Admin onSwitchToPublic={enablePublicMode} />;
 }
 
 function App() {

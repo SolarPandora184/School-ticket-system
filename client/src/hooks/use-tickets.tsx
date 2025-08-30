@@ -69,25 +69,35 @@ export function useTickets() {
 
   const liveTicketsProcessed = (liveTicketsQuery.data || [])
     .filter(ticket => ticket.status === "open")
-    .map(ticket => ({
-      ...ticket,
-      createdAt: ticket.createdAt.toISOString(),
-      resolvedAt: ticket.resolvedAt?.toISOString() || null,
-      timeOpen: formatTimeOpen(ticket.createdAt.toISOString()),
-    }))
+    .map(ticket => {
+      const createdAtStr = typeof ticket.createdAt === 'string' ? ticket.createdAt : new Date(ticket.createdAt).toISOString();
+      const resolvedAtStr = ticket.resolvedAt ? (typeof ticket.resolvedAt === 'string' ? ticket.resolvedAt : new Date(ticket.resolvedAt).toISOString()) : null;
+      
+      return {
+        ...ticket,
+        createdAt: createdAtStr,
+        resolvedAt: resolvedAtStr,
+        timeOpen: formatTimeOpen(createdAtStr),
+      };
+    })
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     
   const pastTicketsProcessed = (pastTicketsQuery.data || [])
     .filter(ticket => ticket.status === "resolved")
-    .map(ticket => ({
-      ...ticket,
-      createdAt: ticket.createdAt.toISOString(),
-      resolvedAt: ticket.resolvedAt?.toISOString() || null,
-      resolutionTime: ticket.resolvedAt ? formatResolutionTime(
-        ticket.createdAt.toISOString(), 
-        ticket.resolvedAt.toISOString()
-      ) : undefined,
-    }))
+    .map(ticket => {
+      const createdAtStr = typeof ticket.createdAt === 'string' ? ticket.createdAt : new Date(ticket.createdAt).toISOString();
+      const resolvedAtStr = ticket.resolvedAt ? (typeof ticket.resolvedAt === 'string' ? ticket.resolvedAt : new Date(ticket.resolvedAt).toISOString()) : null;
+      
+      return {
+        ...ticket,
+        createdAt: createdAtStr,
+        resolvedAt: resolvedAtStr,
+        resolutionTime: ticket.resolvedAt ? formatResolutionTime(
+          createdAtStr, 
+          resolvedAtStr!
+        ) : undefined,
+      };
+    })
     .sort((a, b) => new Date(b.resolvedAt || 0).getTime() - new Date(a.resolvedAt || 0).getTime());
   
   return {

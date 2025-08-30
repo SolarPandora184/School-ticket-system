@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 
 export function useAdmin() {
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isPublicMode, setIsPublicMode] = useState(false);
   const [pageUpCount, setPageUpCount] = useState(0);
   const [lastKeyTime, setLastKeyTime] = useState(0);
 
   useEffect(() => {
-    // Check for admin mode in localStorage
-    if (localStorage.getItem('adminMode') === 'true') {
-      setIsAdmin(true);
+    // Check for public mode in localStorage
+    if (localStorage.getItem('publicMode') === 'true') {
+      setIsPublicMode(true);
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -25,11 +25,11 @@ export function useAdmin() {
         setLastKeyTime(currentTime);
         
         if (newCount >= 3) {
-          if (!isAdmin) {
-            // Show admin confirmation
-            if (confirm('Enable Admin Mode? This will save your admin status locally.')) {
-              localStorage.setItem('adminMode', 'true');
-              setIsAdmin(true);
+          if (!isPublicMode) {
+            // Show public mode confirmation
+            if (confirm('Switch to Public Form? This allows anyone to submit tickets.')) {
+              localStorage.setItem('publicMode', 'true');
+              setIsPublicMode(true);
             }
           }
           setPageUpCount(0);
@@ -39,12 +39,17 @@ export function useAdmin() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isAdmin, pageUpCount, lastKeyTime]);
+  }, [isPublicMode, pageUpCount, lastKeyTime]);
 
-  const disableAdminMode = () => {
-    localStorage.removeItem('adminMode');
-    setIsAdmin(false);
+  const enablePublicMode = () => {
+    localStorage.setItem('publicMode', 'true');
+    setIsPublicMode(true);
   };
 
-  return { isAdmin, disableAdminMode };
+  const disablePublicMode = () => {
+    localStorage.removeItem('publicMode');
+    setIsPublicMode(false);
+  };
+
+  return { isPublicMode, enablePublicMode, disablePublicMode };
 }

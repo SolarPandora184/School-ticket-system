@@ -22,10 +22,10 @@ export function AdminSidebar({ activeTab, onTabChange, onLogout, liveCount, past
       <div className="p-6">
         <div className="flex items-center space-x-3 mb-8">
           <div className="bg-primary text-primary-foreground p-2 rounded-lg">
-            <i className="fas fa-user-shield"></i>
+            <i className="fas fa-headset"></i>
           </div>
           <div>
-            <h3 className="font-semibold text-foreground" data-testid="text-admin-title">Admin Panel</h3>
+            <h3 className="font-semibold text-foreground" data-testid="text-admin-title">Support Dashboard</h3>
             <p className="text-sm text-muted-foreground">Ticket Management</p>
           </div>
         </div>
@@ -63,7 +63,7 @@ export function AdminSidebar({ activeTab, onTabChange, onLogout, liveCount, past
           data-testid="button-logout"
         >
           <ExitIcon className="mr-3 h-4 w-4" />
-          Exit Admin Mode
+Public Form
         </Button>
       </div>
     </div>

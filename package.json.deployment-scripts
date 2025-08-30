@@ -1,0 +1,11 @@
+{
+  "scripts": {
+    "build:client": "vite build",
+    "preview": "vite preview",
+    "predeploy": "npm run build:client",
+    "deploy": "gh-pages -d dist"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.0.0"
+  }
+}

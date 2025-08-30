@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import type { TicketWithTimeOpen } from "@/types/ticket";
 import { ClockIcon, CheckIcon, EyeOpenIcon, ChatBubbleIcon, CalendarIcon } from "@radix-ui/react-icons";
 import { useTickets } from "@/hooks/use-tickets";
+import { TicketDetailsDialog } from "@/components/ticket-details-dialog";
 
 interface TicketCardProps {
   ticket: TicketWithTimeOpen;
@@ -87,14 +88,18 @@ export function TicketCard({ ticket, showResolveButton = false }: TicketCardProp
 
         <div className="flex justify-between items-center">
           <div className="flex space-x-3">
-            <Button variant="outline" size="sm" data-testid={`button-view-${ticket.id}`}>
-              <EyeOpenIcon className="mr-1 h-3 w-3" />
-              View Details
-            </Button>
-            <Button variant="outline" size="sm" data-testid={`button-note-${ticket.id}`}>
-              <ChatBubbleIcon className="mr-1 h-3 w-3" />
-              {ticket.status === 'resolved' ? 'Timeline' : 'Add Note'}
-            </Button>
+            <TicketDetailsDialog ticket={ticket}>
+              <Button variant="outline" size="sm" data-testid={`button-view-${ticket.id}`}>
+                <EyeOpenIcon className="mr-1 h-3 w-3" />
+                View Details
+              </Button>
+            </TicketDetailsDialog>
+            <TicketDetailsDialog ticket={ticket}>
+              <Button variant="outline" size="sm" data-testid={`button-note-${ticket.id}`}>
+                <ChatBubbleIcon className="mr-1 h-3 w-3" />
+                {ticket.status === 'resolved' ? 'Timeline' : 'Add Note'}
+              </Button>
+            </TicketDetailsDialog>
           </div>
           {showResolveButton && ticket.status === 'open' ? (
             <Button 

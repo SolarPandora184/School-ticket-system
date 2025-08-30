@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertTicketSchema, updateTicketSchema } from "@shared/schema";
+import { insertTicketSchema, updateTicketSchema, insertNoteSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -140,6 +140,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(ticket);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch ticket" });
+    }
+  });
+
+  // Get notes for a ticket
+  app.get("/api/tickets/:id/notes", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const notes = await storage.getNotes(id);
+      res.json(notes);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch notes" });
+    }
+  });
+
+  // Create a note for a ticket
+  app.post("/api/tickets/:id/notes", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertNoteSchema.parse({ ...req.body, ticketId: id });
+      const note = await storage.createNote(validatedData);
+      res.status(201).json(note);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid note data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create note" });
+      }
     }
   });
 

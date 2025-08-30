@@ -1,4 +1,4 @@
-import { type Ticket, type InsertTicket, type UpdateTicket, type User, type InsertUser } from "@shared/schema";
+import { type Ticket, type InsertTicket, type UpdateTicket, type User, type InsertUser, type Note, type InsertNote } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -10,15 +10,20 @@ export interface IStorage {
   getTicket(id: string): Promise<Ticket | undefined>;
   createTicket(ticket: InsertTicket): Promise<Ticket>;
   updateTicket(id: string, ticket: UpdateTicket): Promise<Ticket | undefined>;
+  
+  getNotes(ticketId: string): Promise<Note[]>;
+  createNote(note: InsertNote): Promise<Note>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private tickets: Map<string, Ticket>;
+  private notes: Map<string, Note>;
 
   constructor() {
     this.users = new Map();
     this.tickets = new Map();
+    this.notes = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -74,6 +79,22 @@ export class MemStorage implements IStorage {
 
     this.tickets.set(id, updatedTicket);
     return updatedTicket;
+  }
+
+  async getNotes(ticketId: string): Promise<Note[]> {
+    return Array.from(this.notes.values()).filter(note => note.ticketId === ticketId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  async createNote(insertNote: InsertNote): Promise<Note> {
+    const id = randomUUID();
+    const note: Note = {
+      ...insertNote,
+      id,
+      createdAt: new Date(),
+    };
+    this.notes.set(id, note);
+    return note;
   }
 }
 

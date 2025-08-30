@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import type { Ticket, InsertTicket } from "@shared/schema";
+import type { Ticket, InsertTicket, Note, InsertNote } from "@shared/schema";
 import type { TicketWithTimeOpen } from "@/types/ticket";
 
 function formatTimeOpen(createdAt: string): string {
@@ -113,4 +113,29 @@ export function useTicketStats() {
   return useQuery({
     queryKey: ["/api/tickets/stats"],
   });
+}
+
+export function useTicketNotes(ticketId: string) {
+  const queryClient = useQueryClient();
+
+  const notesQuery = useQuery<Note[]>({
+    queryKey: ["/api/tickets", ticketId, "notes"],
+    enabled: !!ticketId,
+  });
+
+  const addNoteMutation = useMutation({
+    mutationFn: async (note: InsertNote) => {
+      const response = await apiRequest("POST", `/api/tickets/${ticketId}/notes`, note);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/tickets", ticketId, "notes"] });
+    },
+  });
+
+  return {
+    notes: notesQuery.data || [],
+    isLoading: notesQuery.isLoading,
+    addNote: addNoteMutation,
+  };
 }

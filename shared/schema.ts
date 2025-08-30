@@ -18,6 +18,13 @@ export const tickets = pgTable("tickets", {
   resolvedAt: timestamp("resolved_at"),
 });
 
+export const notes = pgTable("notes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  ticketId: varchar("ticket_id").notNull().references(() => tickets.id),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertTicketSchema = createInsertSchema(tickets).omit({
   id: true,
   status: true,
@@ -45,5 +52,12 @@ export const insertUserSchema = createInsertSchema(users).pick({
   password: true,
 });
 
+export const insertNoteSchema = createInsertSchema(notes).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type InsertNote = z.infer<typeof insertNoteSchema>;
+export type Note = typeof notes.$inferSelect;

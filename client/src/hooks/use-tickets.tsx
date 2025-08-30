@@ -100,12 +100,25 @@ export function useTickets() {
     })
     .sort((a, b) => new Date(b.resolvedAt || 0).getTime() - new Date(a.resolvedAt || 0).getTime());
   
+  const deleteTicketMutation = useMutation({
+    mutationFn: async (ticketId: string) => {
+      const response = await apiRequest("DELETE", `/api/tickets/${ticketId}`);
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/tickets/live"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tickets/past"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/tickets/stats"] });
+    },
+  });
+
   return {
     liveTickets: liveTicketsProcessed,
     pastTickets: pastTicketsProcessed,
     isLoading: liveTicketsQuery.isLoading || pastTicketsQuery.isLoading,
     createTicket: createTicketMutation,
     resolveTicket: resolveTicketMutation,
+    deleteTicket: deleteTicketMutation,
   };
 }
 

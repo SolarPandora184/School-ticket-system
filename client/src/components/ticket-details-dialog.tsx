@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import type { TicketWithTimeOpen } from "@/types/ticket";
-import { EyeOpenIcon, ClockIcon, CheckIcon, CalendarIcon, ChatBubbleIcon } from "@radix-ui/react-icons";
+import { EyeOpenIcon, ClockIcon, CheckIcon, CalendarIcon, ChatBubbleIcon, TrashIcon } from "@radix-ui/react-icons";
 import { useTickets, useTicketNotes } from "@/hooks/use-tickets";
 
 interface TicketDetailsDialogProps {
@@ -24,7 +24,7 @@ const priorityColors = {
 export function TicketDetailsDialog({ ticket, children }: TicketDetailsDialogProps) {
   const [newNote, setNewNote] = useState("");
   const [isAddingNote, setIsAddingNote] = useState(false);
-  const { resolveTicket } = useTickets();
+  const { resolveTicket, deleteTicket } = useTickets();
   const { notes, addNote, isLoading: notesLoading } = useTicketNotes(ticket.id);
 
   const formatDate = (dateString: string) => {
@@ -35,6 +35,12 @@ export function TicketDetailsDialog({ ticket, children }: TicketDetailsDialogPro
   const handleResolve = async () => {
     if (confirm('Are you sure you want to resolve this ticket?')) {
       await resolveTicket.mutateAsync(ticket.id);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (confirm('Are you sure you want to delete this ticket? This action cannot be undone.')) {
+      await deleteTicket.mutateAsync(ticket.id);
     }
   };
 
@@ -58,8 +64,11 @@ export function TicketDetailsDialog({ ticket, children }: TicketDetailsDialogPro
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent className="max-w-4xl max-h-[80vh]" aria-describedby="ticket-details-description">
         <DialogHeader>
+          <DialogDescription id="ticket-details-description" className="sr-only">
+            View detailed information about this support ticket including contact details, description, timeline, and notes.
+          </DialogDescription>
           <DialogTitle className="flex items-center space-x-3">
             <span className="font-mono text-sm bg-muted text-muted-foreground px-2 py-1 rounded">
               #{ticket.id.slice(0, 8)}
@@ -128,13 +137,38 @@ export function TicketDetailsDialog({ ticket, children }: TicketDetailsDialogPro
             {ticket.status === 'open' && (
               <>
                 <Separator />
+                <div className="space-y-2">
+                  <Button 
+                    onClick={handleResolve}
+                    disabled={resolveTicket.isPending}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <CheckIcon className="mr-2 h-4 w-4" />
+                    {resolveTicket.isPending ? "Resolving..." : "Resolve Ticket"}
+                  </Button>
+                  <Button 
+                    onClick={handleDelete}
+                    disabled={deleteTicket.isPending}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    <TrashIcon className="mr-2 h-4 w-4" />
+                    {deleteTicket.isPending ? "Deleting..." : "Delete Ticket"}
+                  </Button>
+                </div>
+              </>
+            )}
+            {ticket.status === 'resolved' && (
+              <>
+                <Separator />
                 <Button 
-                  onClick={handleResolve}
-                  disabled={resolveTicket.isPending}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  onClick={handleDelete}
+                  disabled={deleteTicket.isPending}
+                  variant="destructive"
+                  className="w-full"
                 >
-                  <CheckIcon className="mr-2 h-4 w-4" />
-                  {resolveTicket.isPending ? "Resolving..." : "Resolve Ticket"}
+                  <TrashIcon className="mr-2 h-4 w-4" />
+                  {deleteTicket.isPending ? "Deleting..." : "Delete Ticket"}
                 </Button>
               </>
             )}

@@ -13,6 +13,7 @@ export interface IStorage {
   
   getNotes(ticketId: string): Promise<Note[]>;
   createNote(note: InsertNote): Promise<Note>;
+  deleteTicket(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -95,6 +96,17 @@ export class MemStorage implements IStorage {
     };
     this.notes.set(id, note);
     return note;
+  }
+
+  async deleteTicket(id: string): Promise<boolean> {
+    if (this.tickets.has(id)) {
+      this.tickets.delete(id);
+      // Also delete associated notes
+      const ticketNotes = Array.from(this.notes.values()).filter(note => note.ticketId === id);
+      ticketNotes.forEach(note => this.notes.delete(note.id));
+      return true;
+    }
+    return false;
   }
 }
 

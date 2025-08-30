@@ -170,6 +170,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete a ticket
+  app.delete("/api/tickets/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteTicket(id);
+      
+      if (!deleted) {
+        res.status(404).json({ message: "Ticket not found" });
+        return;
+      }
+
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete ticket" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

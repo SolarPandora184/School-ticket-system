@@ -205,7 +205,6 @@ export default function Admin({ onSwitchToPublic }: AdminProps) {
         <AdminSidebar
           activeTab={activeTab}
           onTabChange={setActiveTab}
-          onLogout={onSwitchToPublic}
           liveCount={liveTicketsTyped.length}
           pastCount={pastTicketsTyped.length}
         />

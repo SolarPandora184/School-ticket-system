@@ -1,16 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ClockIcon, ArchiveIcon, BarChartIcon, ExitIcon } from "@radix-ui/react-icons";
+import { ClockIcon, ArchiveIcon, BarChartIcon } from "@radix-ui/react-icons";
 
 interface AdminSidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  onLogout: () => void;
   liveCount: number;
   pastCount: number;
 }
 
-export function AdminSidebar({ activeTab, onTabChange, onLogout, liveCount, pastCount }: AdminSidebarProps) {
+export function AdminSidebar({ activeTab, onTabChange, liveCount, pastCount }: AdminSidebarProps) {
   const tabs = [
     { id: 'live', label: 'Live Tickets', icon: ClockIcon, count: liveCount },
     { id: 'past', label: 'Past Tickets', icon: ArchiveIcon, count: pastCount },
@@ -55,17 +54,6 @@ export function AdminSidebar({ activeTab, onTabChange, onLogout, liveCount, past
         </nav>
       </div>
 
-      <div className="mt-auto p-6">
-        <Button 
-          onClick={onLogout} 
-          variant="outline" 
-          className="w-full justify-start text-destructive hover:bg-destructive hover:text-destructive-foreground"
-          data-testid="button-logout"
-        >
-          <ExitIcon className="mr-3 h-4 w-4" />
-Public Form
-        </Button>
-      </div>
     </div>
   );
 }

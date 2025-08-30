@@ -25,12 +25,13 @@ export function useAdmin() {
         setLastKeyTime(currentTime);
         
         if (newCount >= 3) {
-          if (!isPublicMode) {
-            // Show public mode confirmation
-            if (confirm('Switch to Public Form? This allows anyone to submit tickets.')) {
-              localStorage.setItem('publicMode', 'true');
-              setIsPublicMode(true);
-            }
+          // Toggle between modes
+          if (isPublicMode) {
+            localStorage.removeItem('publicMode');
+            setIsPublicMode(false);
+          } else {
+            localStorage.setItem('publicMode', 'true');
+            setIsPublicMode(true);
           }
           setPageUpCount(0);
         }

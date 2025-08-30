@@ -51,6 +51,7 @@ export class MemStorage implements IStorage {
     const ticket: Ticket = {
       ...insertTicket,
       id,
+      priority: insertTicket.priority || "medium",
       status: "open",
       createdAt: new Date(),
       resolvedAt: null,

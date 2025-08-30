@@ -39,28 +39,12 @@ function formatResolutionTime(createdAt: string, resolvedAt: string): string {
 export function useTickets() {
   const queryClient = useQueryClient();
 
-  const liveTicketsQuery = useQuery<TicketWithTimeOpen[]>({
+  const liveTicketsQuery = useQuery<Ticket[]>({
     queryKey: ["/api/tickets", "live"],
-    select: (data: Ticket[]) => 
-      data
-        .filter(ticket => ticket.status === "open")
-        .map(ticket => ({
-          ...ticket,
-          timeOpen: formatTimeOpen(ticket.createdAt),
-        }))
-        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
   });
 
-  const pastTicketsQuery = useQuery<TicketWithTimeOpen[]>({
+  const pastTicketsQuery = useQuery<Ticket[]>({
     queryKey: ["/api/tickets", "past"],
-    select: (data: Ticket[]) => 
-      data
-        .filter(ticket => ticket.status === "resolved")
-        .map(ticket => ({
-          ...ticket,
-          resolutionTime: ticket.resolvedAt ? formatResolutionTime(ticket.createdAt, ticket.resolvedAt) : undefined,
-        }))
-        .sort((a, b) => new Date(b.resolvedAt || 0).getTime() - new Date(a.resolvedAt || 0).getTime()),
   });
 
   const createTicketMutation = useMutation({
@@ -83,9 +67,32 @@ export function useTickets() {
     },
   });
 
+  const liveTicketsProcessed = (liveTicketsQuery.data || [])
+    .filter(ticket => ticket.status === "open")
+    .map(ticket => ({
+      ...ticket,
+      createdAt: ticket.createdAt.toISOString(),
+      resolvedAt: ticket.resolvedAt?.toISOString() || null,
+      timeOpen: formatTimeOpen(ticket.createdAt.toISOString()),
+    }))
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+  const pastTicketsProcessed = (pastTicketsQuery.data || [])
+    .filter(ticket => ticket.status === "resolved")
+    .map(ticket => ({
+      ...ticket,
+      createdAt: ticket.createdAt.toISOString(),
+      resolvedAt: ticket.resolvedAt?.toISOString() || null,
+      resolutionTime: ticket.resolvedAt ? formatResolutionTime(
+        ticket.createdAt.toISOString(), 
+        ticket.resolvedAt.toISOString()
+      ) : undefined,
+    }))
+    .sort((a, b) => new Date(b.resolvedAt || 0).getTime() - new Date(a.resolvedAt || 0).getTime());
+  
   return {
-    liveTickets: liveTicketsQuery.data || [],
-    pastTickets: pastTicketsQuery.data || [],
+    liveTickets: liveTicketsProcessed,
+    pastTickets: pastTicketsProcessed,
     isLoading: liveTicketsQuery.isLoading || pastTicketsQuery.isLoading,
     createTicket: createTicketMutation,
     resolveTicket: resolveTicketMutation,

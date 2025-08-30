@@ -5,6 +5,7 @@ import { TicketCard } from "@/components/ticket-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useTickets } from "@/hooks/use-tickets";
+import type { TicketWithTimeOpen } from "@/types/ticket";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -15,6 +16,9 @@ interface AdminProps {
 export default function Admin({ onLogout }: AdminProps) {
   const [activeTab, setActiveTab] = useState("live");
   const { liveTickets, pastTickets, isLoading } = useTickets();
+  
+  const liveTicketsTyped = liveTickets as TicketWithTimeOpen[];
+  const pastTicketsTyped = pastTickets as TicketWithTimeOpen[];
 
   const renderLiveTickets = () => (
     <div className="h-full flex flex-col" data-testid="panel-live-tickets">
@@ -31,7 +35,7 @@ export default function Admin({ onLogout }: AdminProps) {
               <Skeleton key={i} className="h-48 w-full" />
             ))}
           </div>
-        ) : liveTickets.length === 0 ? (
+        ) : liveTicketsTyped.length === 0 ? (
           <div className="text-center py-12" data-testid="empty-live-tickets">
             <div className="text-muted-foreground mb-4">
               <i className="fas fa-inbox text-4xl"></i>
@@ -41,7 +45,7 @@ export default function Admin({ onLogout }: AdminProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            {liveTickets.map((ticket) => (
+            {liveTicketsTyped.map((ticket: TicketWithTimeOpen) => (
               <TicketCard key={ticket.id} ticket={ticket} showResolveButton={true} />
             ))}
           </div>
@@ -65,7 +69,7 @@ export default function Admin({ onLogout }: AdminProps) {
               <Skeleton key={i} className="h-48 w-full" />
             ))}
           </div>
-        ) : pastTickets.length === 0 ? (
+        ) : pastTicketsTyped.length === 0 ? (
           <div className="text-center py-12" data-testid="empty-past-tickets">
             <div className="text-muted-foreground mb-4">
               <i className="fas fa-archive text-4xl"></i>
@@ -75,7 +79,7 @@ export default function Admin({ onLogout }: AdminProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            {pastTickets.map((ticket) => (
+            {pastTicketsTyped.map((ticket: TicketWithTimeOpen) => (
               <TicketCard key={ticket.id} ticket={ticket} />
             ))}
           </div>
@@ -101,7 +105,7 @@ export default function Admin({ onLogout }: AdminProps) {
                 </div>
                 <Badge variant="outline" className="text-green-600 border-green-200">+12%</Badge>
               </div>
-              <div className="text-2xl font-bold text-foreground mb-1" data-testid="stat-total-tickets">{liveTickets.length + pastTickets.length}</div>
+              <div className="text-2xl font-bold text-foreground mb-1" data-testid="stat-total-tickets">{liveTicketsTyped.length + pastTicketsTyped.length}</div>
               <div className="text-sm text-muted-foreground">Total Tickets This Week</div>
             </CardContent>
           </Card>
@@ -114,7 +118,7 @@ export default function Admin({ onLogout }: AdminProps) {
                 </div>
                 <Badge variant="outline" className="text-green-600 border-green-200">+8%</Badge>
               </div>
-              <div className="text-2xl font-bold text-foreground mb-1" data-testid="stat-resolved-tickets">{pastTickets.length}</div>
+              <div className="text-2xl font-bold text-foreground mb-1" data-testid="stat-resolved-tickets">{pastTicketsTyped.length}</div>
               <div className="text-sm text-muted-foreground">Resolved Tickets</div>
             </CardContent>
           </Card>
@@ -202,8 +206,8 @@ export default function Admin({ onLogout }: AdminProps) {
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onLogout={onLogout}
-          liveCount={liveTickets.length}
-          pastCount={pastTickets.length}
+          liveCount={liveTicketsTyped.length}
+          pastCount={pastTicketsTyped.length}
         />
         <div className="flex-1 overflow-hidden">
           {renderContent()}
